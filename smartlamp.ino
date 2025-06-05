@@ -24,12 +24,14 @@ void setup() {
 void loop() {
     //Obtenha os comandos enviados pela serial 
     //e processe-os com a função processCommand
-    String command = Serial.readStringUntil('\n');
-    command.trim();
-    processCommand(command);
-    ledUpdate();
-    Serial.print("Recebido: ");
-    Serial.println(command);
+    
+    if(Serial.available()){
+      String command = Serial.readStringUntil('\n');
+      command.trim();
+      processCommand(command);
+      ledUpdate();
+    }
+    
 }
 
 
@@ -53,24 +55,23 @@ void processCommand(String command) {
     if(cmd == "SET_LED"){
         if(value >= 0 && value <= 100){
             ledValue = value; // Atualiza a variável global
-            Serial.print("Intensidade do LED ajustada para: ");
-            Serial.println(ledValue);
+            Serial.println("RES SET_LED 1");
         } 
         else{
-            Serial.println("Valor fora do intervalo (0–100). Ignorado.");
+            Serial.println("RES SET_LED -1");
         }
     } 
     else if(cmd == "GET_LED"){
-        Serial.print("Intensidade atual do LED: ");
+        Serial.print("RES GET_LED ");
         Serial.println(ledValue);
     } 
     else if (cmd == "GET_LDR"){
         int ldrValue = ldrGetValue();
-        Serial.print("Valor atual do LDR: ");
+        Serial.print("RES GET_LDR ");
         Serial.println(ldrValue);
     } 
     else{
-        Serial.println("Comando desconhecido");
+        Serial.println("ERR Unknown command.");
     }
 }
 
