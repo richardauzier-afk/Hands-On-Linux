@@ -1,0 +1,2 @@
+/home/devtitans-1/hands-on-linux/Hands-On-Linux/smartlamp-kernel-module/probe.o
+
