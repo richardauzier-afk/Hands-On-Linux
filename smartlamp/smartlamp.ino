@@ -14,7 +14,7 @@ void setup() {
     Serial.printf("SmartLamp Initialized.\n");
     Serial.println("Digite um comando no Serial Monitor:");
     ledUpdate();
-
+    processCommand("GET_LDR");
 
 }
 
