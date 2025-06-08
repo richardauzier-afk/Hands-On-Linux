@@ -1,0 +1,8 @@
+# Ignorar arquivos de build
+
+*.o
+*.ko
+*.mod.*
+*.symvers
+*.order
+*.mod
