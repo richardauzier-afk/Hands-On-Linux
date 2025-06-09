@@ -10,9 +10,6 @@ void setup() {
       
     pinMode(ledPin, OUTPUT);
     pinMode(ldrPin, INPUT);
-    
-    Serial.printf("SmartLamp Initialized.\n");
-    Serial.println("Digite um comando no Serial Monitor:");
     ledUpdate();
     processCommand("GET_LDR");
 
@@ -65,8 +62,8 @@ void processCommand(String command) {
     } 
     else if (cmd == "GET_LDR"){
         int ldrValue = ldrGetValue();
-        Serial.print("RES GET_LDR ");
-        Serial.println(ldrValue);
+        Serial.println("RES GET_LDR " + String(ldrValue));
+        
     } 
     else{
         Serial.println("ERR Unknown command.");

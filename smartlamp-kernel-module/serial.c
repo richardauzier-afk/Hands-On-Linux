@@ -67,29 +67,53 @@ static void usb_disconnect(struct usb_interface *interface) {
 
 static int usb_read_serial() {
     int ret, actual_size;
-    int retries = 10;                       // Tenta algumas vezes receber uma resposta da USB. Depois desiste.
-    int i = 0;
-    // Espera pela resposta correta do dispositivo (desiste depois de várias tentativas)
+    int retries = 10;
+    static char response_buffer[MAX_RECV_LINE]; // Buffer para acumular resposta
+    int total_received = 0;
+
+    memset(response_buffer, 0, sizeof(response_buffer));
+
     while (retries > 0) {
-        // Lê os dados da porta serial e armazena em usb_in_buffer
-            // usb_in_buffer - contem a resposta em string do dispositivo
-            // actual_size - contem o tamanho da resposta em bytes
-        ret = usb_bulk_msg(smartlamp_device, usb_rcvbulkpipe(smartlamp_device, usb_in), usb_in_buffer, min(usb_max_size, MAX_RECV_LINE), &actual_size, 1000);
+        ret = usb_bulk_msg(smartlamp_device, usb_rcvbulkpipe(smartlamp_device, usb_in),
+                          usb_in_buffer, min(usb_max_size, MAX_RECV_LINE), &actual_size, 1500);
+        
+
         if (ret) {
-            printk(KERN_ERR "SmartLamp: Erro ao ler dados da USB (tentativa %d). Codigo: %d\n", ret, retries--);
+            printk(KERN_ERR "SmartLamp: Erro ao ler dados (tentativa %d/10). Código: %d\n", 
+                   (11 - retries), ret);
+            retries--;
             continue;
         }
 
-        //caso tenha recebido a mensagem 'RES_LDR X' via serial acesse o buffer 'usb_in_buffer' e retorne apenas o valor da resposta X
-        //retorne o valor de X em inteiro
-
-        for(i = 0; i <= actual_size; i++){
-            printk(KERN_INFO "%c", usb_in_buffer[i]);
+        // Acumula dados no buffer de resposta
+        if (total_received + actual_size < MAX_RECV_LINE) {
+            memcpy(response_buffer + total_received, usb_in_buffer, actual_size);
+            total_received += actual_size;
+            response_buffer[total_received] = '\0'; // Garante terminação nula
         }
 
 
-        return 0;
+        // Verifica se recebeu o final da mensagem
+        if (strchr(response_buffer, '\n') || strchr(response_buffer, '\r')) {
+            break;
+        }
     }
 
-    return -1; 
+    // Processamento final da resposta
+    if (total_received > 0) {
+        // Remove caracteres de controle e espaços extras
+        char *clean_response = strim(response_buffer);
+        
+        // Tenta extrair o valor numérico
+        if (sscanf(clean_response, "RES GET_LDR %d", &LDR_value) == 1) {
+            return LDR_value;
+        }
+        else {
+            printk(KERN_ERR "SmartLamp: Formato de resposta inválido: [%s]\n", clean_response);
+            return -EINVAL;
+        }
+    }
+
+    printk(KERN_ERR "SmartLamp: Nenhum dado válido recebido após 10 tentativas\n");
+    return -ETIMEDOUT;
 }
