@@ -121,7 +121,7 @@ Depois que o driver e o firmware estiverem configurados, você poderá interagir
 
 - **Escrever para o Dispositivo:**
     ```sh
-    echo "GET_LED" > /sys/kernel/smartlamp/led
+    echo "100" > /sys/kernel/smartlamp/led
     ```
 
 - **Ler do Dispositivo:**
