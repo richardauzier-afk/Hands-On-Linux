@@ -1,0 +1,5 @@
+Pino 26: Controle do LED
+Pino 34: Para efetuar a leitura do status do LDR
+Pino GND|
+        |----------------- Alimentação do circuito (LDR e LED)
+Pino VCC|
