@@ -11,7 +11,6 @@ void setup() {
     pinMode(ledPin, OUTPUT);
     pinMode(ldrPin, INPUT);
     ledUpdate();
-    processCommand("GET_LDR");
 
 }
 
