@@ -18,16 +18,30 @@ void setup() {
 void loop() {
     //Obtenha os comandos enviados pela serial 
     //e processe-os com a função processCommand
-    
-    if(Serial.available()){
-      String command = Serial.readStringUntil('\n');
+      String command = readSerial();
       command.trim();
       processCommand(command);
       ledUpdate();
-    }
     
 }
 
+String readSerial()
+{
+  String str = "";
+  if (Serial.available() > 0)
+  {
+    while (Serial.available() > 0)
+    {
+      char s = Serial.read();
+
+      if (s != '\n')
+      {
+        str.concat(s);
+      }
+    }
+  }
+  return str;
+}
 
 void processCommand(String command) {
     // compare o comando com os comandos possíveis e execute a ação correspondente
